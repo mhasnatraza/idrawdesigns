@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Undo2, Redo2 } from 'lucide-react';
 import Canvas from './components/Canvas';
 import AISidebar from './components/AISidebar';
-import './App.css'
+import './App.css';
 
 function App() {
-  const [updateStatus, setUpdateStatus] = useState(null); // 'available', 'downloaded', or null
+  const canvasRef = useRef(null);
+  const [updateStatus, setUpdateStatus] = useState(null);
 
   useEffect(() => {
     if (window.electronAPI) {
@@ -35,6 +37,21 @@ function App() {
         </div>
 
         <nav className="flex items-center gap-1 bg-[#0f172a]/50 p-1 rounded-lg border border-white/5">
+          <button
+            onClick={() => canvasRef.current?.undo()}
+            className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1"
+            title="Undo"
+          >
+            <Undo2 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => canvasRef.current?.redo()}
+            className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1"
+            title="Redo"
+          >
+            <Redo2 className="w-3.5 h-3.5" />
+          </button>
+          <div className="w-px h-4 bg-white/10 mx-1"></div>
           <button className="px-3 py-1.5 text-xs font-medium bg-white/10 rounded text-white">Select</button>
           <button className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors">Rectangle</button>
           <button className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors">Circle</button>
@@ -63,11 +80,11 @@ function App() {
 
       {/* WORKSPACE */}
       <div className="flex flex-1 overflow-hidden">
-        <Canvas />
+        <Canvas ref={canvasRef} />
         <AISidebar />
       </div>
     </div>
   )
 }
 
-export default App
+export default App;

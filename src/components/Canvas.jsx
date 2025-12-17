@@ -1,46 +1,100 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { Layers, MousePointer2, Move, Type, Square, Circle, Minus } from 'lucide-react';
 
-const Canvas = () => {
+const Canvas = forwardRef((props, ref) => {
     const canvasRef = useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [context, setContext] = useState(null);
+
+    // History State
+    const [history, setHistory] = useState([]);
+    const [historyStep, setHistoryStep] = useState(-1);
+
+    useImperativeHandle(ref, () => ({
+        undo: () => {
+            if (historyStep > 0) {
+                const newStep = historyStep - 1;
+                setHistoryStep(newStep);
+                const imageData = history[newStep];
+                if (imageData && context) {
+                    context.putImageData(imageData, 0, 0);
+                }
+            }
+        },
+        redo: () => {
+            if (historyStep < history.length - 1) {
+                const newStep = historyStep + 1;
+                setHistoryStep(newStep);
+                const imageData = history[newStep];
+                if (imageData && context) {
+                    context.putImageData(imageData, 0, 0);
+                }
+            }
+        },
+        clear: () => {
+            if (context && canvasRef.current) {
+                context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                saveHistory();
+            }
+        }
+    }));
+
+    // Helper to save current state to history
+    const saveHistory = () => {
+        if (!canvasRef.current || !context) return;
+
+        const imageData = context.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+
+        // If we are in the middle of history (undid something), slice the future off
+        const newHistory = history.slice(0, historyStep + 1);
+        newHistory.push(imageData);
+
+        setHistory(newHistory);
+        setHistoryStep(newHistory.length - 1);
+    };
 
     useEffect(() => {
         const canvas = canvasRef.current;
         canvas.width = window.innerWidth - 320; // Sidebar width
         canvas.height = window.innerHeight - 64; // Header height
 
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#fff';
         setContext(ctx);
 
+        // Save initial blank state
+        setTimeout(() => {
+            const initialData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            setHistory([initialData]);
+            setHistoryStep(0);
+        }, 100);
+
         const handleResize = () => {
-            if (!canvasRef.current || !context) return;
+            if (!canvasRef.current || !ctx) return;
             const canvas = canvasRef.current;
             // Save current drawing
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
             // Resize
             canvas.width = window.innerWidth - 320;
             canvas.height = window.innerHeight - 64;
 
             // Restore context properties (they get reset on resize)
-            context.lineCap = 'round';
-            context.lineJoin = 'round';
-            context.lineWidth = 2;
-            context.strokeStyle = '#fff';
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#fff';
 
             // Restore drawing
-            context.putImageData(imageData, 0, 0);
+            ctx.putImageData(imageData, 0, 0);
         };
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [context]); // depend on context to ensure it's available
+    }, []); // Run once on mount
 
     const startDrawing = (e) => {
         const { offsetX, offsetY } = e.nativeEvent;
@@ -57,8 +111,11 @@ const Canvas = () => {
     };
 
     const stopDrawing = () => {
-        context.closePath();
-        setIsDrawing(false);
+        if (isDrawing) {
+            context.closePath();
+            setIsDrawing(false);
+            saveHistory(); // Save state after stroke
+        }
     };
 
     return (
@@ -76,6 +133,8 @@ const Canvas = () => {
             />
         </div>
     );
-};
+}); // End forwardRef
+
+Canvas.displayName = 'Canvas';
 
 export default Canvas;
