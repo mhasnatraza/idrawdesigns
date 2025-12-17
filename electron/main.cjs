@@ -1,12 +1,15 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import { join } from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import pkg from 'electron-updater';
-const { autoUpdater } = pkg;
+console.log('Versions:', process.versions);
+const electron = require('electron');
+const { app, BrowserWindow, ipcMain } = electron;
+const { join } = require('path');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+let autoUpdater;
+try {
+    const updaterPkg = require('electron-updater');
+    autoUpdater = updaterPkg.autoUpdater;
+} catch (e) {
+    console.error('Failed to load electron-updater:', e);
+}
 
 let mainWindow;
 
@@ -17,7 +20,7 @@ function createWindow() {
         titleBarStyle: 'hiddenInset', // Mac-style seamless titlebar
         trafficLightPosition: { x: 12, y: 12 },
         webPreferences: {
-            preload: join(__dirname, 'preload.js'),
+            preload: join(__dirname, 'preload.cjs'),
             nodeIntegration: false,       // ✅ SECURITY: Disable Node in renderer
             contextIsolation: true,       // ✅ SECURITY: Enable isolation
             webSecurity: true,            // ✅ SECURITY: Enable web security
@@ -43,7 +46,9 @@ app.whenReady().then(() => {
     createWindow();
 
     // Check for updates immediately on start
-    autoUpdater.checkForUpdatesAndNotify();
+    if (autoUpdater) {
+        autoUpdater.checkForUpdatesAndNotify().catch(e => console.error('Update check failed:', e));
+    }
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -55,14 +60,18 @@ app.on('window-all-closed', () => {
 });
 
 // Auto-updater events
-autoUpdater.on('update-available', () => {
-    mainWindow.webContents.send('update_available');
-});
+if (autoUpdater) {
+    autoUpdater.on('update-available', () => {
+        mainWindow.webContents.send('update_available');
+    });
 
-autoUpdater.on('update-downloaded', () => {
-    mainWindow.webContents.send('update_downloaded');
-});
+    autoUpdater.on('update-downloaded', () => {
+        mainWindow.webContents.send('update_downloaded');
+    });
+}
 
 ipcMain.on('restart_app', () => {
-    autoUpdater.quitAndInstall();
+    if (autoUpdater) {
+        autoUpdater.quitAndInstall();
+    }
 });
