@@ -1,0 +1,66 @@
+{
+  "name": "i_draw_design",
+  "private": true,
+  "version": "0.1.0",
+  "main": "electron/main.js",
+  "type": "module",
+  "description": "Premium AI Design Tool",
+  "author": "Hasnat Raza",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mhasnatraza/idrawdesigns.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron:dev": "concurrently -k \"cross-env BROWSER=none npm run dev\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
+    "electron:build": "vite build && electron-builder",
+    "release": "vite build && electron-builder --publish always"
+  },
+  "build": {
+    "appId": "com.idrawdesign.app",
+    "productName": "i Draw Design",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "mhasnatraza",
+      "repo": "idrawdesigns"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": "dmg",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "lucide-react": "^0.300.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1",
+    "eslint": "^8.5.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "globals": "^13.24.0",
+    "vite": "^5.0.0",
+    "wait-on": "^7.2.0"
+  }
+}
