@@ -18,9 +18,10 @@ function createWindow() {
         trafficLightPosition: { x: 12, y: 12 },
         webPreferences: {
             preload: join(__dirname, 'preload.js'),
-            nodeIntegration: true,
-            contextIsolation: false, // Simplifying for local agent tools integration if needed later
-            webSecurity: false // Often helpful for local file loading in these prototype apps
+            nodeIntegration: false,       // ✅ SECURITY: Disable Node in renderer
+            contextIsolation: true,       // ✅ SECURITY: Enable isolation
+            webSecurity: true,            // ✅ SECURITY: Enable web security
+            sandbox: true                 // ✅ SECURITY: Add sandboxing
         },
         backgroundColor: '#0f172a',
         title: "i Draw Design"

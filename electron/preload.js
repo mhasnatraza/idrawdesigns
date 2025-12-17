@@ -1,7 +1,7 @@
-const { ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
-window.electronAPI = {
+contextBridge.exposeInMainWorld('electronAPI', {
     onUpdateAvailable: (callback) => ipcRenderer.on('update_available', (event, ...args) => callback(event, ...args)),
     onUpdateDownloaded: (callback) => ipcRenderer.on('update_downloaded', (event, ...args) => callback(event, ...args)),
     restartApp: () => ipcRenderer.send('restart_app')
-};
+});

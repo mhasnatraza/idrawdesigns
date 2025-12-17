@@ -19,12 +19,28 @@ const Canvas = () => {
         setContext(ctx);
 
         const handleResize = () => {
-            // TODO: Handle resize without losing canvas data
+            if (!canvasRef.current || !context) return;
+            const canvas = canvasRef.current;
+            // Save current drawing
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+            // Resize
+            canvas.width = window.innerWidth - 320;
+            canvas.height = window.innerHeight - 64;
+
+            // Restore context properties (they get reset on resize)
+            context.lineCap = 'round';
+            context.lineJoin = 'round';
+            context.lineWidth = 2;
+            context.strokeStyle = '#fff';
+
+            // Restore drawing
+            context.putImageData(imageData, 0, 0);
         };
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [context]); // depend on context to ensure it's available
 
     const startDrawing = (e) => {
         const { offsetX, offsetY } = e.nativeEvent;
