@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Layers, MousePointer2, Move, Type, Square, Cirlce, Minus } from 'lucide-react';
+import { Layers, MousePointer2, Move, Type, Square, Circle, Minus } from 'lucide-react';
 
 const Canvas = () => {
     const canvasRef = useRef(null);
