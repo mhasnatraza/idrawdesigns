@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Undo2, Redo2 } from 'lucide-react';
+import { Undo2, Redo2, PanelRightOpen, PanelRightClose, Palette } from 'lucide-react';
 import Canvas from './components/Canvas';
 import AISidebar from './components/AISidebar';
 import './App.css';
@@ -7,6 +7,25 @@ import './App.css';
 function App() {
   const canvasRef = useRef(null);
   const [updateStatus, setUpdateStatus] = useState(null);
+  const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [brushColor, setBrushColor] = useState('#ffffff');
+  const [brushSize, setBrushSize] = useState(2);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 1024px)');
+
+    const syncLayout = () => {
+      const compact = media.matches;
+      setIsTabletOrMobile(compact);
+      setSidebarOpen(!compact);
+    };
+
+    syncLayout();
+    media.addEventListener('change', syncLayout);
+
+    return () => media.removeEventListener('change', syncLayout);
+  }, []);
 
   useEffect(() => {
     if (window.electronAPI) {
@@ -28,27 +47,19 @@ function App() {
   return (
     <div className="flex flex-col h-screen w-screen bg-[#0f172a] text-white overflow-hidden font-sans relative">
       {/* HEADER */}
-      <header className="h-14 border-b border-white/5 bg-[#1e293b]/50 backdrop-blur-xl flex items-center px-4 justify-between z-10 shrink-0">
-        <div className="flex items-center gap-3">
+      <header className="h-14 border-b border-white/5 bg-[#1e293b]/50 backdrop-blur-xl flex items-center px-3 md:px-4 justify-between z-10 shrink-0 gap-2">
+        <div className="flex items-center gap-2 md:gap-3 shrink-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold text-lg">
             i
           </div>
-          <span className="font-semibold tracking-wide text-sm text-slate-200">Draw Design</span>
+          <span className="font-semibold tracking-wide text-sm text-slate-200 hidden sm:inline">Draw Design</span>
         </div>
 
-        <nav className="flex items-center gap-1 bg-[#0f172a]/50 p-1 rounded-lg border border-white/5">
-          <button
-            onClick={() => canvasRef.current?.undo()}
-            className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1"
-            title="Undo"
-          >
+        <nav className="hidden lg:flex items-center gap-1 bg-[#0f172a]/50 p-1 rounded-lg border border-white/5 min-w-0">
+          <button onClick={() => canvasRef.current?.undo()} className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors" title="Undo">
             <Undo2 className="w-3.5 h-3.5" />
           </button>
-          <button
-            onClick={() => canvasRef.current?.redo()}
-            className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1"
-            title="Redo"
-          >
+          <button onClick={() => canvasRef.current?.redo()} className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors" title="Redo">
             <Redo2 className="w-3.5 h-3.5" />
           </button>
           <div className="w-px h-4 bg-white/10 mx-1"></div>
@@ -58,33 +69,67 @@ function App() {
           <button className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors">Text</button>
         </nav>
 
-        <div className="w-8"></div>
+        <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-2 py-1">
+            <Palette className="w-3.5 h-3.5 text-slate-300" />
+            <input
+              type="color"
+              value={brushColor}
+              onChange={(e) => setBrushColor(e.target.value)}
+              className="h-6 w-6 rounded border border-white/20 bg-transparent"
+              title="Brush color"
+            />
+            <input
+              type="range"
+              min="1"
+              max="12"
+              value={brushSize}
+              onChange={(e) => setBrushSize(Number(e.target.value))}
+              className="w-16 md:w-24"
+              title="Brush size"
+            />
+          </div>
+
+          <button onClick={() => canvasRef.current?.undo()} className="lg:hidden p-2 rounded-lg bg-white/5 text-slate-300" title="Undo">
+            <Undo2 className="w-4 h-4" />
+          </button>
+          <button onClick={() => canvasRef.current?.redo()} className="lg:hidden p-2 rounded-lg bg-white/5 text-slate-300" title="Redo">
+            <Redo2 className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => setSidebarOpen(prev => !prev)}
+            className="p-2 rounded-lg bg-white/10 border border-white/10 text-slate-100"
+            title={sidebarOpen ? 'Hide AI panel' : 'Show AI panel'}
+          >
+            {sidebarOpen ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
+          </button>
+        </div>
       </header>
 
-      {/* UPDATE NOTIFICATION */}
       {updateStatus && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 bg-blue-600/90 backdrop-blur text-white px-4 py-2 rounded-full shadow-lg text-sm flex items-center gap-3 border border-blue-400/30">
           <span>
             {updateStatus === 'available' ? 'Downloading update...' : 'Update downloaded.'}
           </span>
           {updateStatus === 'downloaded' && (
-            <button
-              onClick={handleRestart}
-              className="bg-white text-blue-900 px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-50 transition-colors"
-            >
+            <button onClick={handleRestart} className="bg-white text-blue-900 px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-50 transition-colors">
               Restart to Install
             </button>
           )}
         </div>
       )}
 
-      {/* WORKSPACE */}
-      <div className="flex flex-1 overflow-hidden">
-        <Canvas ref={canvasRef} />
-        <AISidebar />
+      <div className="flex flex-1 overflow-hidden relative">
+        <Canvas ref={canvasRef} brushColor={brushColor} brushSize={brushSize} />
+        <AISidebar
+          isTabletOrMobile={isTabletOrMobile}
+          sidebarOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
       </div>
     </div>
-  )
+  );
 }
 
 export default App;

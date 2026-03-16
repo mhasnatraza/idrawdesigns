@@ -1,0 +1,22 @@
+export const stylePresets = [
+  'Cinematic Realism', 'Photoreal Studio', 'Documentary Editorial', 'Clean Product Shot', 'Luxury Brand',
+  'Minimal Scandinavian', 'Neo Brutalist', 'Bauhaus Modern', 'Swiss Poster', 'Memphis Revival',
+  'Cyberpunk Neon', 'Retro Futurism', 'Solarpunk', 'Synthwave Sunset', 'Y2K Gloss',
+  'Anime Key Visual', 'Manga Ink', 'Ghibli Warmth', 'Comic Noir', 'Graphic Novel',
+  'Watercolor Dream', 'Oil Masterpiece', 'Acrylic Texture', 'Pastel Sketch', 'Ink Wash',
+  'Charcoal Study', 'Pencil Draft', 'Marker Concept', 'Digital Matte Painting', 'Low Poly 3D',
+  'Isometric 3D', 'Voxel Art', 'Clay Render', 'C4D Product Render', 'Unreal Cinematic',
+  'Architectural Visualization', 'Interior Cozy', 'Industrial Loft', 'Biophilic Space', 'Landscape Epic',
+  'Fantasy Realm', 'Dark Fantasy', 'Mythic Hero', 'Steampunk', 'Dieselpunk',
+  'Horror Atmospheric', 'Noir Detective', 'Sci-Fi Hard Surface', 'Space Opera', 'Alien Biome',
+  'Street Photography', 'Fashion Editorial', 'Beauty Campaign', 'Food Commercial', 'Automotive Hero',
+  'Sports Dynamic', 'Travel Postcard', 'Wedding Romantic', 'Kids Illustration', 'Educational Diagram',
+  'Infographic Flat', 'UI Illustration', 'Glassmorphism', 'Claymorphism', 'Gradient Mesh',
+  'Paper Cutout', 'Collage Mixed Media', 'Halftone Print', 'Riso Print', 'Silkscreen Poster',
+  'Vintage Film', 'Polaroid Nostalgia', 'Kodachrome', 'Monochrome Fine Art', 'Duotone Pop',
+  'Gold Foil Luxury', 'Embossed Letterpress', 'Holographic', 'Metallic Chrome', 'Ceramic Minimal',
+  'Textile Pattern', 'Botanical Etching', 'Scientific Illustration', 'Medical Visual', 'Blueprint Technical',
+  'UI Wireframe', 'Storyboarding', 'Concept Art', 'Character Turnaround', 'Environment Sheet',
+  'Pixel Art', '8-bit Retro', '16-bit Arcade', 'Esports Thumbnail', 'YouTube Cover',
+  'Social Media Ad', 'Corporate Presentation', 'Startup Landing', 'Ecommerce Listing', 'Icon Set'
+];

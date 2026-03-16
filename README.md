@@ -1,16 +1,43 @@
-# React + Vite
+# i Draw Design
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser-first AI design workspace built with React + Vite, currently focused on prompt-driven image generation and canvas workflows.
 
-Currently, two official plugins are available:
+## Product Direction: Self-Trained Multimodal Studio
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project now includes an in-app **Build Plan** panel that maps your requested capabilities into an open-source stack:
 
-## React Compiler
+- Image generation + image-to-image + reference guidance
+- Web research, document reading, image/video/text analysis
+- Video generation with subject consistency
+- 100 style presets
+- Upscaling, background removal, SVG vector conversion
+- Multilingual text quality controls (near-zero spelling/grammar errors)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Suggested Open-Source Stack
 
-## Expanding the ESLint configuration
+- **Core orchestrator:** FastAPI + Celery + Redis queue
+- **Image models:** FLUX.1-dev, SDXL, ControlNet, IP-Adapter
+- **Video models:** LTX-Video, HunyuanVideo, CogVideoX
+- **Research + RAG:** SearXNG, Playwright crawler, Qdrant
+- **Text quality:** Llama/Qwen + LanguageTool + NLLB
+- **Image utilities:** Real-ESRGAN, RMBG, vtracer/Potrace
+- **Consistency training:** LoRA / DreamBooth adapters
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## iPad Browser Delivery
+
+- Ship as **PWA** first for touch support and Home Screen install.
+- Keep generation backend remote GPU based; iPad only runs UI and uploads assets.
+- Use chunked upload + resumable jobs for larger video tasks.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
