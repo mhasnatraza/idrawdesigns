@@ -1,13 +1,15 @@
 import {
-    Sparkles, Wand2, Image as ImageIcon, Zap, History, Settings, MoreHorizontal
+    Sparkles, Wand2, Image as ImageIcon, Zap, History, Lightbulb
 } from 'lucide-react';
 import { useState } from 'react';
 import { IDD } from '../services/brain';
+import StudioBlueprint from './StudioBlueprint';
 
 const AISidebar = () => {
     const [prompt, setPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedImages, setGeneratedImages] = useState([]);
+    const [activeTab, setActiveTab] = useState('generate');
 
     const handleGenerate = async () => {
         if (!prompt.trim()) return;
@@ -41,15 +43,30 @@ const AISidebar = () => {
 
     return (
         <div className="w-[320px] bg-[#1e293b] border-l border-white/5 flex flex-col h-full glass-panel">
-            <div className="p-4 border-b border-white/5">
+            <div className="p-4 border-b border-white/5 space-y-3">
                 <h2 className="text-sm font-semibold text-white flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-purple-400" />
                     IDD Intelligence
                 </h2>
+                <div className="grid grid-cols-2 gap-2">
+                    <button
+                        onClick={() => setActiveTab('generate')}
+                        className={`h-8 text-xs rounded-lg border transition-colors ${activeTab === 'generate' ? 'bg-white/15 border-white/20 text-white' : 'bg-transparent border-white/10 text-slate-400 hover:text-white'}`}
+                    >
+                        Generate
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('blueprint')}
+                        className={`h-8 text-xs rounded-lg border transition-colors flex items-center justify-center gap-1 ${activeTab === 'blueprint' ? 'bg-white/15 border-white/20 text-white' : 'bg-transparent border-white/10 text-slate-400 hover:text-white'}`}
+                    >
+                        <Lightbulb className="w-3 h-3" /> Plan
+                    </button>
+                </div>
             </div>
 
             <div className="p-4 flex-1 overflow-y-auto space-y-6">
 
+                {activeTab === 'generate' ? <>
                 {/* Input Area */}
                 <div className="space-y-3">
                     <label className="text-xs font-medium text-slate-400">Describe your vision</label>
@@ -105,6 +122,7 @@ const AISidebar = () => {
                         )}
                     </div>
                 </div>
+                </> : <StudioBlueprint />}
 
             </div>
         </div>
