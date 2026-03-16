@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Undo2, Redo2 } from 'lucide-react';
+import { Undo2, Redo2, PanelRightOpen, PanelRightClose } from 'lucide-react';
 import Canvas from './components/Canvas';
 import AISidebar from './components/AISidebar';
 import './App.css';
@@ -7,6 +7,23 @@ import './App.css';
 function App() {
   const canvasRef = useRef(null);
   const [updateStatus, setUpdateStatus] = useState(null);
+  const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 1024px)');
+
+    const syncLayout = () => {
+      const compact = media.matches;
+      setIsTabletOrMobile(compact);
+      setSidebarOpen(!compact);
+    };
+
+    syncLayout();
+    media.addEventListener('change', syncLayout);
+
+    return () => media.removeEventListener('change', syncLayout);
+  }, []);
 
   useEffect(() => {
     if (window.electronAPI) {
@@ -28,15 +45,15 @@ function App() {
   return (
     <div className="flex flex-col h-screen w-screen bg-[#0f172a] text-white overflow-hidden font-sans relative">
       {/* HEADER */}
-      <header className="h-14 border-b border-white/5 bg-[#1e293b]/50 backdrop-blur-xl flex items-center px-4 justify-between z-10 shrink-0">
-        <div className="flex items-center gap-3">
+      <header className="h-14 border-b border-white/5 bg-[#1e293b]/50 backdrop-blur-xl flex items-center px-4 justify-between z-10 shrink-0 gap-2">
+        <div className="flex items-center gap-3 shrink-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold text-lg">
             i
           </div>
           <span className="font-semibold tracking-wide text-sm text-slate-200">Draw Design</span>
         </div>
 
-        <nav className="flex items-center gap-1 bg-[#0f172a]/50 p-1 rounded-lg border border-white/5">
+        <nav className="hidden md:flex items-center gap-1 bg-[#0f172a]/50 p-1 rounded-lg border border-white/5 min-w-0">
           <button
             onClick={() => canvasRef.current?.undo()}
             className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1"
@@ -58,7 +75,30 @@ function App() {
           <button className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors">Text</button>
         </nav>
 
-        <div className="w-8"></div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => canvasRef.current?.undo()}
+            className="md:hidden p-2 rounded-lg bg-white/5 text-slate-300"
+            title="Undo"
+          >
+            <Undo2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => canvasRef.current?.redo()}
+            className="md:hidden p-2 rounded-lg bg-white/5 text-slate-300"
+            title="Redo"
+          >
+            <Redo2 className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => setSidebarOpen(prev => !prev)}
+            className="p-2 rounded-lg bg-white/10 border border-white/10 text-slate-100"
+            title={sidebarOpen ? 'Hide AI panel' : 'Show AI panel'}
+          >
+            {sidebarOpen ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
+          </button>
+        </div>
       </header>
 
       {/* UPDATE NOTIFICATION */}
@@ -79,12 +119,16 @@ function App() {
       )}
 
       {/* WORKSPACE */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         <Canvas ref={canvasRef} />
-        <AISidebar />
+        <AISidebar
+          isTabletOrMobile={isTabletOrMobile}
+          sidebarOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
       </div>
     </div>
-  )
+  );
 }
 
 export default App;
