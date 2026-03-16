@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState, forwardRef, useImperativeHandle, useCallback } from 'react';
 
-const Canvas = forwardRef((props, ref) => {
+const BASE_AREA = 1280 * 720;
+
+const Canvas = forwardRef(({ brushColor = '#ffffff', brushSize = 2 }, ref) => {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
@@ -10,12 +12,24 @@ const Canvas = forwardRef((props, ref) => {
     const [history, setHistory] = useState([]);
     const [historyStep, setHistoryStep] = useState(-1);
 
+    const getAdaptiveBrushSize = useCallback((width, height) => {
+        const areaScale = Math.sqrt((width * height) / BASE_AREA);
+        return Math.max(1, brushSize * areaScale);
+    }, [brushSize]);
+
+    const applyBrushStyle = useCallback((ctx, width, height) => {
+        if (!ctx) return;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = getAdaptiveBrushSize(width, height);
+        ctx.strokeStyle = brushColor;
+    }, [brushColor, getAdaptiveBrushSize]);
+
     const saveHistory = useCallback(() => {
         if (!canvasRef.current || !context) return;
 
         const imageData = context.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-        // If we are in the middle of history (undid something), slice the future off
         const newHistory = history.slice(0, historyStep + 1);
         newHistory.push(imageData);
 
@@ -31,25 +45,28 @@ const Canvas = forwardRef((props, ref) => {
         const width = Math.max(1, Math.floor(container.clientWidth));
         const height = Math.max(1, Math.floor(container.clientHeight));
 
-        if (canvas.width === width && canvas.height === height) return;
+        if (canvas.width === width && canvas.height === height) {
+            applyBrushStyle(context, width, height);
+            return;
+        }
 
-        let imageData = null;
-        if (canvas.width > 0 && canvas.height > 0) {
-            imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        if (tempCtx && canvas.width > 0 && canvas.height > 0) {
+            tempCtx.drawImage(canvas, 0, 0);
         }
 
         canvas.width = width;
         canvas.height = height;
 
-        context.lineCap = 'round';
-        context.lineJoin = 'round';
-        context.lineWidth = 2;
-        context.strokeStyle = '#fff';
+        applyBrushStyle(context, width, height);
 
-        if (imageData) {
-            context.putImageData(imageData, 0, 0);
+        if (tempCtx && tempCanvas.width > 0 && tempCanvas.height > 0) {
+            context.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, width, height);
         }
-    }, [context]);
+    }, [context, applyBrushStyle]);
 
     useImperativeHandle(ref, () => ({
         undo: () => {
@@ -59,6 +76,7 @@ const Canvas = forwardRef((props, ref) => {
                 const imageData = history[newStep];
                 if (imageData && context) {
                     context.putImageData(imageData, 0, 0);
+                    applyBrushStyle(context, canvasRef.current.width, canvasRef.current.height);
                 }
             }
         },
@@ -69,6 +87,7 @@ const Canvas = forwardRef((props, ref) => {
                 const imageData = history[newStep];
                 if (imageData && context) {
                     context.putImageData(imageData, 0, 0);
+                    applyBrushStyle(context, canvasRef.current.width, canvasRef.current.height);
                 }
             }
         },
@@ -85,10 +104,6 @@ const Canvas = forwardRef((props, ref) => {
         if (!canvas) return;
 
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#fff';
         setContext(ctx);
     }, []);
 
@@ -102,7 +117,7 @@ const Canvas = forwardRef((props, ref) => {
             observer.observe(containerRef.current);
         }
 
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             const canvas = canvasRef.current;
             if (!canvas) return;
             const initialData = context.getImageData(0, 0, canvas.width, canvas.height);
@@ -110,8 +125,16 @@ const Canvas = forwardRef((props, ref) => {
             setHistoryStep(0);
         }, 100);
 
-        return () => observer.disconnect();
+        return () => {
+            clearTimeout(timer);
+            observer.disconnect();
+        };
     }, [context, resizeToContainer]);
+
+    useEffect(() => {
+        if (!context || !canvasRef.current) return;
+        applyBrushStyle(context, canvasRef.current.width || 1, canvasRef.current.height || 1);
+    }, [context, brushColor, brushSize, applyBrushStyle]);
 
     const getPoint = (e) => {
         const rect = canvasRef.current.getBoundingClientRect();
@@ -160,7 +183,7 @@ const Canvas = forwardRef((props, ref) => {
             />
         </div>
     );
-}); // End forwardRef
+});
 
 Canvas.displayName = 'Canvas';
 
