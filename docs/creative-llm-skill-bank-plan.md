@@ -1,83 +1,114 @@
-# Creative LLM Skill Bank (Graphic Design + Marketing)
+# WDD Partner 2 (W2) — Creative Intelligence System Blueprint
 
-## 1) Is this doable?
-Yes. It is doable, and this is a strong approach if we build in phases:
-1. Define legal-safe source rules.
-2. Build a skill bank with repeatable workflows.
-3. Add a small knowledge base that stores licensed references and reusable insights.
-4. Run a daily operating cadence.
+Owner: **Hasnat Raza S/o Muhammad Yousaf**  
+AI Partner Name: **WDD Partner 2**  
+Nickname: **W2**
 
-## 2) First-pass setup architecture
+## 1) Yes, this is doable
+Yes. We can build this from scratch in a controlled and legally safer way.
 
-### A. Core system layers
-- **Skill Layer**: task-specific skills (brief writing, moodboard curation, ad concept generation, content calendars).
-- **Knowledge Base Layer**: indexed notes, source links, license metadata, trend observations, and reusable prompts.
-- **Governance Layer**: rights checks, source trust levels, citation rules, and “do-not-use” constraints.
-- **Execution Layer**: daily/weekly routines to continuously collect, normalize, and rate references.
+This document is the v2 foundation focused on:
+- iPad-friendly workflows,
+- private storage only,
+- multi-discipline creative learning,
+- image/video-capable output planning,
+- evidence-grade rights logging.
 
-### B. Minimum data schema for each collected reference
-Use this structure for every entry:
-- `title`
-- `source_platform`
-- `url`
-- `capture_date`
-- `content_type` (image/video/campaign/article)
-- `industry`
-- `style_tags` (e.g., brutalist, minimalist, kinetic type)
-- `marketing_tags` (awareness, conversion, retention)
-- `license_summary`
-- `commercial_use_allowed` (yes/no/conditional)
-- `attribution_required` (yes/no)
-- `notes_on_restrictions`
-- `derived_insights`
+## 2) Scope of learning domains
+W2 should support all major visual and creative disciplines, including:
+- Art history and styles (classical to contemporary)
+- Graphic design
+- Branding and marketing creatives
+- Photography and cinematography
+- Illustration and sketching
+- Fashion design
+- Interior design
+- Sculpture and installation art
+- Handicrafts and DIY
+- Performance arts and stage visual language
+- Motion graphics, image generation, and video ideation
 
-### C. Legal-safe sourcing policy (working baseline)
-- **Allowed for commercial inspiration/assets with conditions**: Unsplash, Pexels, Shutterstock (per their license models).
-- **Inspiration-only (not direct reuse unless explicit rights)**: Pinterest, Behance, DeviantArt, Netflix, DreamWorks brand/media properties.
-- **Always preserve source link + timestamp + rights note** in the knowledge base.
-- **Never train a private model on copyrighted media without explicit permission/license**.
+## 3) iPad-first operating model
+- Use **Google Drive** as primary private knowledge vault.
+- Keep a mirrored private GitHub repo only for versioned templates and prompts.
+- Use structured folders that are easy to manage from iPad Files app:
+  - `/00_admin` (ownership, legal, policies)
+  - `/01_sources` (raw references)
+  - `/02_verified` (license-checked resources)
+  - `/03_insights` (summaries and tags)
+  - `/04_prompts` (stable prompt packs)
+  - `/05_outputs` (concepts, images, video scripts)
 
-## 3) Initial source-confidence matrix
+## 4) Security + privacy baseline
+- Keep every repository **private**.
+- Disable public link sharing for Drive folders.
+- Store source links and rights metadata in every entry.
+- Avoid uploading sensitive client data into third-party public tools.
+- Keep access to only the owner account(s) you explicitly approve.
 
-| Source | Use in workflow | Commercial reuse baseline |
-|---|---|---|
-| Unsplash | stock photo sourcing + inspiration | generally allowed under Unsplash License; check restrictions |
-| Pexels | stock photo/video sourcing | generally allowed under Pexels License; check restrictions |
-| Shutterstock | paid stock sourcing | allowed via purchased license scope |
-| Pinterest | trend discovery, moodboard leads | inspiration/discovery only by default |
-| Behance | portfolio/campaign benchmarking | inspiration/analysis only by default |
-| DeviantArt | style exploration | inspiration only unless explicit license from creator |
-| Netflix | storytelling references, trailer analysis | inspiration only; IP protected |
-| DreamWorks | visual storytelling references | inspiration only; IP protected |
+## 5) Legal-safety and rights protocol (court-ready logging posture)
+> Note: This is an operational framework, not legal advice.
 
-## 4) Skill bank v1 (created in this repo)
-- `license-safe-resource-curator`: enforce rights checks and source metadata completeness.
-- `creative-brief-builder`: turn goals into structured campaign briefs.
-- `trend-board-curator`: collect and normalize trend references into actionable design/marketing angles.
+For each collected reference, log:
+- source URL
+- capture date/time (UTC)
+- platform terms/license link
+- commercial-use status (`allowed`, `restricted`, `unknown`)
+- attribution requirement
+- derivative-use notes
+- evidence snapshot reference (if available)
 
-## 5) Daily execution plan (slow, sustainable build)
+### Non-negotiable rules
+1. If licensing is unclear, mark **unknown** and block reuse.
+2. Treat Pinterest/Behance/DeviantArt/entertainment IP as inspiration-only unless explicit rights are documented.
+3. Use stock providers only within license scope (standard/enhanced/editorial limits).
+4. Maintain immutable changelog entries for audit trails.
 
-### Week 1 (foundation)
-- Day 1: finalize data schema + legal labels.
-- Day 2: create source whitelist/graylist/blacklist.
-- Day 3: collect 20 references from legal-safe sources.
-- Day 4: tag references and extract 1 insight each.
-- Day 5: build 3 reusable prompt templates.
-- Day 6: run first mini retrospective (what was noisy/useful).
-- Day 7: cleanup and deduplicate.
+## 6) Skill bank roadmap (from scratch)
 
-### Ongoing daily routine (60–90 min)
-1. **Collect (20 min)**: 5–10 high-signal references.
-2. **Classify (15 min)**: tag style + funnel stage + audience.
-3. **Rights check (10 min)**: assign commercial status.
-4. **Synthesize (15 min)**: write “what this means for campaigns.”
-5. **Produce (15–30 min)**: generate 1 design concept + 1 marketing angle.
+### Phase A — Core control skills
+1. `ownership-and-policy-guardian`
+2. `license-safe-resource-curator`
+3. `creative-taxonomy-builder`
 
-## 6) Alignment checkpoint before scaling
-Before we scale automation, align on:
-- industries to prioritize (fashion, SaaS, D2C, etc.)
-- visual style priorities
-- paid vs free source mix
-- brand risk tolerance (strict vs flexible licensing posture)
+### Phase B — Production skills
+4. `creative-brief-builder`
+5. `trend-board-curator`
+6. `prompt-pack-composer`
+7. `image-video-concept-director`
 
-If aligned, next step is to implement ingestion templates and start controlled daily collection.
+### Phase C — Growth skills
+8. `campaign-variant-tester`
+9. `portfolio-casewriter`
+10. `brand-consistency-auditor`
+
+## 7) Daily plan (slow and practical)
+
+### Daily (60–90 minutes)
+1. Collect 5 references per discipline focus of the day.
+2. Run rights verification and classify legal status.
+3. Add tags (style, medium, funnel stage, audience).
+4. Write 3 actionable insights.
+5. Produce 1 image concept prompt + 1 short video concept prompt.
+
+### Weekly rhythm
+- Mon: Art/design style ingestion
+- Tue: Marketing ad analysis
+- Wed: Photography + composition study
+- Thu: Fashion/interior/craft scan
+- Fri: Prompt refinement + output tests
+- Sat: Rights audit and cleanup
+- Sun: Portfolio-ready summary
+
+## 8) Alignment checkpoints before heavy automation
+Confirm these before we automate data ingestion:
+1. Preferred private storage structure in your Google Drive.
+2. Jurisdiction/lawyer-reviewed legal text for enforceability.
+3. Priority 3 disciplines for first month.
+4. Preferred image/video generation stack.
+
+## 9) Immediate next step
+If you approve this structure, next step is to build:
+- a locked ownership policy file,
+- a source evidence ledger template,
+- and three operational starter skills for daily use.

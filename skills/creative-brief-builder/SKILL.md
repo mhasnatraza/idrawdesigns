@@ -1,18 +1,18 @@
 ---
 name: creative-brief-builder
-description: Build clear campaign and content briefs for graphic design and marketing execution. Use when turning business goals into audience-specific messaging, visual direction, deliverables, channels, and measurable outcomes.
+description: Build clear campaign and content briefs for graphic design and marketing execution across static and motion outputs. Use when turning business goals into audience-specific messaging, visual direction, production deliverables, channels, and measurable outcomes.
 ---
 
 # Creative Brief Builder
 
 ## Workflow
 1. Capture objective, audience, offer, and timeline.
-2. Define funnel stage and primary KPI.
+2. Define funnel stage, success KPI, and channel mix.
 3. Translate strategy into creative direction:
    - message hierarchy
    - visual style cues
    - copy tone
-4. Output channel-specific deliverables (social, ads, landing, email).
+4. Output channel-specific deliverables for image and video.
 5. Add test plan (A/B variants and success thresholds).
 
 ## Brief template
@@ -21,7 +21,8 @@ description: Build clear campaign and content briefs for graphic design and mark
 - Core message
 - Offer/CTA
 - Visual direction
-- Content deliverables
+- Static deliverables (posts, banners, print)
+- Motion deliverables (reels, ads, shorts)
 - Channel plan
 - KPI + measurement window
-- Risks and constraints
+- Risks, legal constraints, and IP checks
