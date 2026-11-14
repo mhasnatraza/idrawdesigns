@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Web Intelligence</title></head>
+<body>
+<script>
+(() => {
+  "use strict";
+  const SEARCH = "https://s.jina.ai/";
+  const READER = "https://r.jina.ai/";
+  const DEFAULT_CHARS = 7000;
+
+  function clamp(v, d, min, max) {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.floor(n))) : d;
+  }
+  function validateUrl(value) {
+    let u;
+    try { u = new URL(String(value || "")); } catch (_) { throw new Error("Invalid URL."); }
+    if (!["http:", "https:"].includes(u.protocol)) throw new Error("Only HTTP and HTTPS URLs are allowed.");
+    const h = u.hostname.toLowerCase();
+    if (h === "localhost" || h.endsWith(".localhost") || h === "127.0.0.1" ||
+        h === "::1" || h.endsWith(".local") ||
+        /^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)/.test(h)) {
+      throw new Error("Local and private-network addresses are blocked.");
+    }
+    return u.href;
+  }
+  async function getText(url, timeout = 20000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {"Accept":"text/plain, text/markdown, application/json"},
+        credentials: "omit",
+        cache: "no-store",
+        redirect: "follow",
+        signal: controller.signal
+      });
+      const body = await res.text();
+      if (!res.ok) throw new Error("HTTP " + res.status + " from " + url);
+      return {text:body, status:res.status, finalUrl:res.url || url};
+    } finally { clearTimeout(timer); }
+  }
+  function parseResults(md, limit) {
+    const out = [];
+    const lines = String(md || "").split(/\r?\n/);
+    for (let i=0; i<lines.length && out.length<limit; i++) {
+      const m = lines[i].trim().match(/^\[([^\]]{2,240})\]\((https?:\/\/[^)\s]+)\)/);
+      if (m) out.push({title:m[1], url:m[2], snippet:(lines[i+1] || "").replace(/^[-*>\s]+/,"").slice(0,500)});
+    }
+    return out;
+  }
+  async function search(query, limit) {
+    const q = String(query || "").trim();
+    if (!q) throw new Error("Search requires a query.");
+    try {
+      const r = await getText(SEARCH + encodeURIComponent(q), 24000);
+      return {status:"ok", provider:"Jina Search", query:q, results:parseResults(r.text,limit),
+        raw_results:r.text.slice(0,24000),
+        note:"Search results are discovery leads. Open primary sources before relying on claims."};
+    } catch (e) {
+      const fallback = "https://api.duckduckgo.com/?q="+encodeURIComponent(q)+"&format=json&no_html=1&skip_disambig=1";
+      try {
+        const r = await getText(fallback,15000), j = JSON.parse(r.text), items=[];
+        if (j.AbstractURL) items.push({title:j.Heading || q,url:j.AbstractURL,snippet:j.AbstractText || ""});
+        (j.RelatedTopics || []).forEach(x => {
+          if (x.FirstURL && x.Text) items.push({title:x.Text,url:x.FirstURL,snippet:x.Text});
+          (x.Topics || []).forEach(y => { if(y.FirstURL && y.Text) items.push({title:y.Text,url:y.FirstURL,snippet:y.Text}); });
+        });
+        return {status:"partial",provider:"DuckDuckGo Instant Answer fallback",query:q,
+          results:items.slice(0,limit),warning:"Primary search failed: "+String(e.message).slice(0,180)+
+          ". DuckDuckGo Instant Answer is not a complete general-purpose search engine."};
+      } catch (e2) {
+        return {status:"error",provider:"none",query:q,error:String(e.message).slice(0,220),
+          fallback_error:String(e2.message).slice(0,220),
+          hint:"WebView network or CORS policy may block these endpoints. Consider a compatible MCP search server."};
+      }
+    }
+  }
+  function stripHtml(s) {
+    return String(s || "").replace(/<script\b[\s\S]*?<\/script>/gi," ")
+      .replace(/<style\b[\s\S]*?<\/style>/gi," ").replace(/<[^>]+>/g," ")
+      .replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&quot;/gi,'"')
+      .replace(/&#39;/gi,"'").replace(/&lt;/gi,"<").replace(/&gt;/gi,">")
+      .replace(/\s+/g," ").trim();
+  }
+  async function openPage(input, maxChars) {
+    const url = validateUrl(input);
+    try {
+      const r = await getText(READER + url,26000);
+      if (!r.text.trim()) throw new Error("Reader returned empty content.");
+      return {status:"ok",method:"Jina Reader",requested_url:url,final_url:r.finalUrl,
+        content:r.text.slice(0,maxChars),truncated:r.text.length>maxChars};
+    } catch (readerErr) {
+      try {
+        const r = await getText(url,16000), text = stripHtml(r.text);
+        return {status:"partial",method:"direct fetch",requested_url:url,final_url:r.finalUrl,
+          content:text.slice(0,maxChars),truncated:text.length>maxChars,
+          warning:"Reader endpoint failed: "+String(readerErr.message).slice(0,160)+
+          ". Direct extraction may be incomplete."};
+      } catch (directErr) {
+        return {status:"error",requested_url:url,reader_error:String(readerErr.message).slice(0,180),
+          direct_fetch_error:String(directErr.message).slice(0,180),
+          hint:"The site may block automated retrieval or WebView cross-origin requests. Open the URL manually."};
+      }
+    }
+  }
+  async function diagnose() {
+    const checks=[];
+    for (const [name,url] of [["Jina Search",SEARCH+encodeURIComponent("Google AI Edge Gallery")],
+      ["Jina Reader",READER+"https://example.com"]]) {
+      try { const r=await getText(url,12000); checks.push({endpoint:name,reachable:true,http_status:r.status,sample:r.text.slice(0,160)}); }
+      catch(e) { checks.push({endpoint:name,reachable:false,error:String(e.message).slice(0,220)}); }
+    }
+    return {runtime:"Gallery JavaScript skill runner",checked_at:new Date().toISOString(),checks,
+      note:"Endpoint reachability does not guarantee access to every website."};
+  }
+  async function research(input) {
+    const maxResults=clamp(input.max_results,5,1,8), maxPages=clamp(input.max_pages,3,1,4);
+    const maxChars=clamp(input.max_chars,DEFAULT_CHARS,1000,12000);
+    const found=await search(input.query,maxResults);
+    if(found.status==="error") return {search:found,pages:[]};
+    let urls=Array.isArray(input.urls)?input.urls.slice(0,maxPages):[];
+    if(!urls.length) (found.results || []).forEach(x=>{if(x.url && urls.length<maxPages && !urls.includes(x.url)) urls.push(x.url);});
+    const pages=[];
+    for(const url of urls) pages.push(await openPage(url,maxChars));
+    return {search:found,pages};
+  }
+  window["ai_edge_gallery_get_result"] = async (data) => {
+    try {
+      const input=typeof data==="string"?JSON.parse(data || "{}"):(data || {});
+      const action=String(input.action || "search").toLowerCase();
+      let result;
+      if(action==="search") result=await search(input.query,clamp(input.max_results,5,1,8));
+      else if(action==="open") { if(!input.url) throw new Error("The url field is required."); result=await openPage(input.url,clamp(input.max_chars,DEFAULT_CHARS,1000,12000)); }
+      else if(action==="research") result=await research(input);
+      else if(action==="diagnose") result=await diagnose();
+      else throw new Error("Unknown action. Use search, open, research, or diagnose.");
+      return JSON.stringify({result});
+    } catch(e) { console.error("web-intelligence",e); return JSON.stringify({error:String(e.message || e)}); }
+  };
+})();
+</script>
+</body></html>
